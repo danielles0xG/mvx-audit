@@ -14,7 +14,7 @@ import {
     Collection,
     Artist,
     Partner
-} from "./lib/FactoryLibs.sol";
+} from "./libs/FactoryLibs.sol";
 
 //
 // ███╗   ███╗██╗   ██╗██╗  ██╗ ██████╗  █████╗ ██████╗
@@ -83,6 +83,7 @@ contract MvxFactory is OwnableUpgradeable, UUPSUpgradeable {
     }
 
     receive() external payable {}
+
     fallback() external payable {
         revert Unathorized();
     }
@@ -189,16 +190,14 @@ contract MvxFactory is OwnableUpgradeable, UUPSUpgradeable {
     /// @dev Only valid if there is a partnership/discount between the collection admin and Mvx
     /// @dev 10 days max to use referral discount
     function grantReferral(address _extCollection, address _artist) external {
-        address _referral = msg.sender;
+        // Check if the collection has a current partnership with mvx.
+        Partner memory partner = partners[_extCollection];
+        if (!(partner.discount > 0 && partner.expiration > block.timestamp)) revert GrantReferralError(1);
 
+        address _referral = msg.sender;
         // Check if msg.sender is part of the Collection.
         bool isCollectionMember = IMvxCollection(_extCollection).balanceOf(_referral) > 0;
-        if (!isCollectionMember) revert GrantReferralError(1);
-        Partner memory partner = partners[_extCollection];
-        // Check if the collection has a current partnership with mvx.
-        bool hasDiscount = partner.discount > 0 && partner.expiration > block.timestamp;
-        if (!hasDiscount) revert GrantReferralError(2);
-
+        if (!isCollectionMember) revert GrantReferralError(2);
         // If referral is artist - No need to use referral system, talk to mvx admin.
         if (_referral == _artist) revert GrantReferralError(3);
 
@@ -259,10 +258,10 @@ contract MvxFactory is OwnableUpgradeable, UUPSUpgradeable {
         // encode seder to clone immutable arg
         bytes memory data = abi.encodePacked(
             _sender, // uint20
-            uint8(2), //publicStageWeeks, uint8
-            uint16(200), //member.platformFee, uint16
-            uint72(0.01 ether), //updateStageFee, uint72
-            uint40(7) //stageTimeCap uint40
+            uint8(publicStageWeeks), //publicStageWeeks, uint8
+            uint16(member.platformFee), //member.platformFee, uint16
+            uint72(updateStageFee), //updateStageFee, uint72
+            uint40(stageTimeCap) //stageTimeCap uint40
         );
 
         // Lib clone minimal proxy with immutable args
@@ -324,13 +323,5 @@ contract MvxFactory is OwnableUpgradeable, UUPSUpgradeable {
 
     function upgradeTo(address _newImplementation) public override onlyOwner {
         super.upgradeTo(_newImplementation);
-    }
-
-    function getTime() external view returns (uint256) {
-        return block.timestamp;
-    }
-
-    function getTime(uint16 _days) external view returns (uint256) {
-        return block.timestamp + (60 * 60 * 24 * _days);
     }
 }
