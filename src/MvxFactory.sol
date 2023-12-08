@@ -174,7 +174,7 @@ contract MvxFactory is OwnableUpgradeable, UUPSUpgradeable {
     function withdrawReferral() external {
         address _sender = msg.sender;
         uint256 _referralBalance = referralBalances[_sender];
-        if (_referralBalance < 0) revert WithdrawReferralError(1);
+        if (!(_referralBalance > 0)) revert WithdrawReferralError(1);
         referralBalances[_sender] = 0;
         (bool sent,) = _sender.call{value: _referralBalance}("");
         if (!sent) revert WithdrawReferralError(2);
