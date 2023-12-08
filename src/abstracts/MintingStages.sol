@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import {IERC2981, IERC165} from "@openzeppelin-contracts/interfaces/IERC2981.sol";
 import "@openzeppelin-contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@src/libs/AccessControl.sol";
-import {Stages, Collection} from "@src/libs/MvxStruct.sol";
-import {Clone} from "@solady/utils/Clone.sol";
+import {Stages, Collection} from "../libs/MvxStruct.sol";
+import {Clone} from "../../lib/solady/src/utils/Clone.sol"; 
 
 abstract contract MintingStages is Clone, AccessControl, ERC721Upgradeable, IERC2981 {
     /// sender => mintType => counter amount
