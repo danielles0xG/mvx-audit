@@ -14,7 +14,7 @@ import {
     Collection,
     Artist,
     Partner
-} from "./lib/FactoryLibs.sol";
+} from "./libs/FactoryLibs.sol";
 
 //
 // ███╗   ███╗██╗   ██╗██╗  ██╗ ██████╗  █████╗ ██████╗
