@@ -17,7 +17,7 @@ import "@src/abstracts/MintingStages.sol";
 contract MvxCollection is MintingStages {
 
     function __initialize() external  {
-        __ERC721_init("Fuck Elja", "BOOM");
+        __ERC721_init("--", "BOOM");
     }
 
     function initialize(

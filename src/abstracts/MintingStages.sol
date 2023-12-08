@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {IERC2981, IERC165} from "@openzeppelin-contracts/interfaces/IERC2981.sol";
 import "@openzeppelin-contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@src/libs/AccessControl.sol";
+import "../../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import {Stages, Collection} from "../libs/MvxStruct.sol";
 import {Clone} from "../../lib/solady/src/utils/Clone.sol"; 
 
@@ -56,6 +56,14 @@ abstract contract MintingStages is Clone, AccessControl, ERC721Upgradeable, IERC
         _;
     }
 
+
+    function _msgData() internal view override(ContextUpgradeable,Context) returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _msgSender() internal view override(ContextUpgradeable,Context) returns (address) {
+        return super._msgSender();
+    }
     /// OG MINTING
     function updateOGMintPrice(uint72 _price) external OnlyAdminOrOperator {
         require(_price > 0, "Invalid price amount");
@@ -106,7 +114,7 @@ abstract contract MintingStages is Clone, AccessControl, ERC721Upgradeable, IERC
         }
     }
 
-    function supportsInterface(bytes4 _interfaceId) public view override(ERC721Upgradeable,IERC165) returns (bool) {
+    function supportsInterface(bytes4 _interfaceId) public view override(AccessControl,ERC721Upgradeable,IERC165) returns (bool) {
         return _interfaceId == type(IERC2981).interfaceId
             || super.supportsInterface(_interfaceId);
     }
